@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Jan</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="overall" hidden>
+        <input id="button" type="button" value="WASM vs JS"><br>
+        <div id="fn">Input your number : <input id="inputNumber" type="text" /></div>
+        <br>
+        <div id="wasm_result"></div>
+        <br>
+        <div id="wasm_speed"></div><br>
+        <div id="js_result"> </div><br>
+        <div id="js_speed"> </div>
+    </div>
+    <script>
+        $("#button").click(function () {
+                var inputNumber = $("#inputNumber").val();
+            test(inputNumber)
+        });
+        const importObject = {
+            module: {},
+            env: {
+                memory: new WebAssembly.Memory({ initial: 256 }),
+            }
+        };
+        let mine;
+
+        WebAssembly.instantiateStreaming(
+            fetch('main.wasm'),
+            importObject
+        ).then(result => {
+            mine = result.instance.exports.mine;
+
+            $("#overall").show()
+        });
+
+        function test(input) {
+            var start = window.performance.now();
+            let wasm_res = mine(input)
+            var end = window.performance.now();
+            let wasm_speed = end -start
+            start = window.performance.now();
+            let js_res = mine_js(input)
+            end = window.performance.now();
+            let js_speed = end - start
+
+            js_res = getInt64Bytes(js_res).slice(-4)
+            wasm_res = getInt64Bytes(wasm_res).slice(-4);
+            let wasm_res_text = "WASM result: " + wasm_res.join(".")
+            let wasm_speed_text = "WASM speed: " + wasm_speed + "ms" 
+            let js_res_text = "JS result: " + js_res.join(".")
+            let js_speed_text = "JS speed: " + js_speed + "ms" 
+            $("#wasm_result").text(wasm_res_text)
+            $("#wasm_speed").text(wasm_speed_text)
+            $("#js_result").text(js_res_text)
+            $("#js_speed").text(js_speed_text )
+        }
+
+        function getInt64Bytes(x) {
+            let y = Math.floor(x / 2 ** 32);
+            return [y, (y << 8), (y << 16), (y << 24), x, (x << 8), (x << 16), (x << 24)].map(z => z >>> 24)
+        }
+
+        function mine_js(input) {
+            let nonce = 0;
+            let output = 0;
+            do {
+                nonce = nonce + 1;
+                output = nonce ^ ~input;
+            } while (output != 0)
+            return nonce;
+        } 
+    </script>
+</body>
+
+</html>

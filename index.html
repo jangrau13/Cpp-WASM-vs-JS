@@ -2,81 +2,225 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <title>Jan</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+  <meta charset="utf-8">
+  <title>WASM vs JS - a quick test</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'regal-blue': '#243c5a'
+          }
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <div id="overall" hidden>
-        <input id="button" type="button" value="WASM vs JS"><br>
-        <div id="fn">Input your number : <input id="inputNumber" type="text" /></div>
-        <br>
-        <div id="wasm_result"></div>
-        <br>
-        <div id="wasm_speed"></div><br>
-        <div id="js_result"> </div><br>
-        <div id="js_speed"> </div>
+  <div class="container mx-auto basis-03 border" id="overall">
+
+    <h1 class="text-3xl font-bold red center">
+      Project in Advanced Programming Language
+    </h1>
+    <h2 class="text-2xl  regal-blue center">
+      by Lukas Bamert and Jan Grau
+    </h2>
+
+
+    <div class="grid grid-cols-2 gap-x-5 gap-y-3 hidden" id="results">
+      <div id="wasm_1" class="text-lg font-bold text-center p-14 rounded-lg">WASM result: <div id="wasm_result"></div>
+      </div>
+      <div id="wasm_2" class="text-lg font-bold text-center p-14 rounded-lg">WASM speed: <div id="wasm_speed">ms</div>
+      </div>
+      <div id="js_1" class="text-lg font-bold text-center p-14 rounded-lg">JS result: <div id="js_result"></div>
+      </div>
+      <div id="js_2" class="text-lg font-bold text-center p-14 rounded-lg">JS speed: <div id="js_speed">ms</div>
+      </div>
     </div>
-    <script>
-        $("#button").click(function () {
-                var inputNumber = $("#inputNumber").val();
-            test(inputNumber)
-        });
-        const importObject = {
-            module: {},
-            env: {
-                memory: new WebAssembly.Memory({ initial: 256 }),
-            }
-        };
-        let mine;
 
-        WebAssembly.instantiateStreaming(
-            fetch('main.wasm'),
-            importObject
-        ).then(result => {
-            mine = result.instance.exports.mine;
 
-            $("#overall").show()
-        });
+    <div id="explanation">
+      <div class="flex flex-row h-5"></div>
+      <section class="flex-row">
+        <div class="flex-row">In the course "Advanced Programming Languages we learn to handle Advanced Programming
+          Languages. Two of them are C++ and JavaScript including CSS and HTML. Since December 5th 2019 Web-Assembly is
+          officialy the new kid on
+          the block in the web browser. Because C++ can be compiled to wasm, we setup a little project in order to test
+          some
+          aspects of the integration. According to ChatGPT, it is wortwhile to compare those languages because of those
+          reasons: </div>
+        <div class="flex flex-row h-5"></div>
+        <section class="">
+          <p class="font-bold">There are a few reasons why you might want to compare C++ compiled to WebAssembly (WASM)
+            to
+            JavaScript:</p>
+          <ol class="list-decimal list-inside">
+            <li class="mb-4">Performance: WASM can often offer faster performance than JavaScript, particularly for
+              tasks
+              that are computationally intensive or require low-level access to system resources. This is because WASM
+              is
+              compiled to machine code, which can be executed directly by the processor, while JavaScript is an
+              interpreted language that is executed by the browser's JavaScript engine.</li>
+            <li class="mb-4">Reuse of existing code: If you have existing code written in C++, you may be able to reuse
+              that code in a web application by compiling it to WASM. This can save you the time and effort of
+              re-implementing the code in JavaScript.</li>
+            <li class="mb-4">Compatibility with other languages: WASM is designed to be a portable, low-level bytecode
+              that can be compiled from a variety of programming languages, including C++, Rust, and others. This means
+              that if you are familiar with one of these languages, you may be able to use WASM as a way to write web
+              applications without having to learn JavaScript.</li>
+          </ol>
+          <p class="">It's worth noting that WASM is not a replacement for JavaScript and the two languages have
+            different
+            strengths and use cases. In general, JavaScript is better suited for tasks that require high-level
+            abstractions and dynamic language features, while WASM is better suited for tasks that require low-level
+            access to system resources or demand maximum performance.</p>
+        </section>
+        <div class="flex flex-row h-10"></div>
+    </div>
+    <div class="flex-row h-10 font-bold">Please do not use this on the mobile phone as our javascript integration is
+      not supported there. </div>
+    <section class="">
+      <p class="">To test this we wrote a program in javascript and in C++, which loops through each bit to try to
+        find a i32 inverse of a value you can enter.</p>
+      <p class="">We will transform your value into i32 type, because Javascript is working on this datatypes for
+        bit-wise-operations.</p>
+      <p class="">In the end we will show you both results and the respective time it took for both programms. Have
+        fun!!</p>
+    </section>
 
-        function test(input) {
-            var start = window.performance.now();
-            let wasm_res = mine(input)
-            var end = window.performance.now();
-            let wasm_speed = end -start
-            start = window.performance.now();
-            let js_res = mine_js(input)
-            end = window.performance.now();
-            let js_speed = end - start
 
-            js_res = getInt64Bytes(js_res).slice(-4)
-            wasm_res = getInt64Bytes(wasm_res).slice(-4);
-            let wasm_res_text = "WASM result: " + wasm_res.join(".")
-            let wasm_speed_text = "WASM speed: " + wasm_speed + "ms" 
-            let js_res_text = "JS result: " + js_res.join(".")
-            let js_speed_text = "JS speed: " + js_speed + "ms" 
-            $("#wasm_result").text(wasm_res_text)
-            $("#wasm_speed").text(wasm_speed_text)
-            $("#js_result").text(js_res_text)
-            $("#js_speed").text(js_speed_text )
-        }
+    </section>
+    <div class="flex flex-row h-10"></div>
+    <div id="inputData" class="hidden">
+      <div class="flex flex-row font-bold">Input your number: </div>
+      <div class="flex flex-row h-2"></div>
+      <p class="flex flex-row">
+        <input class="basis-1/6 border flex-column" id="inputNumber" type="text" />
+        <input
+          class="flex-column basis-1/4 bg-blue-600 w-120 h-10 drop-shadow-lg rounded-md flex text-white text-1xl hover:bg-blue-700 hover:drop-shadow-2xl hover:animate-bounce duration-300"
+          id="button" type="button" value="WASM vs JS">
+          <div role="status">
+            <svg id="loader" class="hidden mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+              viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                fill="currentColor" />
+              <path
+                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                fill="currentFill" />
+            </svg>
+            <span class="sr-only">Loading...</span>
+          </div>
+      </p>
+    </div>
+    
 
-        function getInt64Bytes(x) {
-            let y = Math.floor(x / 2 ** 32);
-            return [y, (y << 8), (y << 16), (y << 24), x, (x << 8), (x << 16), (x << 24)].map(z => z >>> 24)
-        }
+  </div>
+  <script>
+    $("#button").on('click', function () {
+      $.when($('#loader').removeClass('hidden')).then(
+        $.when($('#explanation').addClass('hidden')).then(
+          test_let
+        )
+      )
+    });
+    
+    const importObject = {
+      module: {},
+      env: {
+        memory: new WebAssembly.Memory({ initial: 256 }),
+      }
+    };
+    let mine;
 
-        function mine_js(input) {
-            let nonce = 0;
-            let output = 0;
-            do {
-                nonce = nonce + 1;
-                output = nonce ^ ~input;
-            } while (output != 0)
-            return nonce;
-        } 
-    </script>
+    WebAssembly.instantiateStreaming(
+      fetch('main.wasm'),
+      importObject
+    ).then(result => {
+      mine = result.instance.exports.mine;
+      console.log('WASM intialized')
+      $('#inputData').removeClass('hidden');
+    });
+
+    function test(input) {
+      if (isNaN(input)) {
+        alert("please enter a number")
+        return "please enter a number"
+      }
+
+      $('#results').removeClass('hidden');
+
+      var start = window.performance.now();
+      let wasm_res = mine(input)
+      var end = window.performance.now();
+      let wasm_speed = end - start
+      start = window.performance.now();
+      let js_res = mine_js(input)
+      end = window.performance.now();
+      let js_speed = end - start
+
+      js_res = getInt64Bytes(js_res).slice(-4)
+      wasm_res = getInt64Bytes(wasm_res).slice(-4);
+      let wasm_res_text = wasm_res.join(".")
+      let wasm_speed_text = wasm_speed
+      let js_res_text = js_res.join(".")
+      let js_speed_text = js_speed
+      $("#wasm_result").text(wasm_res_text)
+      $("#wasm_speed").text(wasm_speed_text + "ms")
+      $("#js_result").text(js_res_text)
+      $("#js_speed").text(js_speed_text +"ms")
+      $('#loader').addClass('hidden');
+      let winner = "wasm"
+      let loser = "js"
+      if(wasm_speed > js_speed){
+        winner = "js"
+        loser = "wasm"
+      }
+      $('#'+loser+'_1').addClass('bg-red-500/50');
+      $('#'+loser+'_1').addClass('text-red-500');
+      $('#'+loser+'_2').addClass('bg-red-500/50');
+      $('#'+loser+'_2').addClass('text-red-500');
+      $('#'+winner+'_1').addClass('bg-green-500/50');
+      $('#'+winner+'_1').addClass('text-green-500');
+      $('#'+winner+'_2').addClass('bg-green-500/50');
+      $('#'+winner+'_2').addClass('text-green-500');
+    }
+
+    function getInt64Bytes(x) {
+      let y = Math.floor(x / 2 ** 32);
+      return [y, (y << 8), (y << 16), (y << 24), x, (x << 8), (x << 16), (x << 24)].map(z => z >>> 24)
+    }
+
+    async function test_let() {
+      await sleep(100)
+      var inputNumber = $("#inputNumber").val();
+      test(inputNumber)
+    }
+
+    function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+    function mine_js(input) {
+      let nonce = 0;
+      let output = 0;
+      do {
+        nonce = nonce + 1;
+        output = nonce ^ ~input;
+      } while (output != 0)
+      return nonce;
+    } 
+  </script>
 </body>
 
 </html>

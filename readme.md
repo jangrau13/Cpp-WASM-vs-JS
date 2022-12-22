@@ -136,7 +136,7 @@ With those two functions we import the generated WebAssembly-File and fetch it t
 Used to import jQuery and Tailwind from a CDN in order to not have it to provide by ourselves.
 
 #### Emscripten
-According to their website Emscripten is the following:
+According to their [website](https://emscripten.org/) Emscripten is the following:
 
 >"Emscripten is a complete compiler toolchain to WebAssembly, using LLVM, with a special focus on speed, size, and the Web platform."
 

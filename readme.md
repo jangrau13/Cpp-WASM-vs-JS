@@ -1,5 +1,7 @@
 # Programming with Advanced Computer Languages - Project
 
+> A project by Lukas Bamert and Jan Grau
+
 ## A Small Performance-Test between WebAssembly written in C++ vs built-in Javascript
 
 With this project we want to compare C++ code compiled to WebAssembly to built-in Javascript in order to have some small performance benchmarking between the two languages. In order to make it a little bit user friendlier, we also provided a small HTML frontend with Tailwind CSS and jQuery.
